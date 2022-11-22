@@ -1,12 +1,15 @@
 #!/usr/bin/env ts-node
 import { mnemonicNew } from "ton-crypto";
-import { DEPLOY_CONFIG_DIR, logger } from './util';
+import { DEPLOY_CONFIG_DIR, logger, argv } from './util';
 import * as fs from 'fs-extra';
 
-const CONFIG_FILENAME = 'deploy.config.json';
-
 const createDeployConfig = async () => {
-    logger.info(`* Create ${CONFIG_FILENAME}`);
+    logger.info(`* Create ${DEPLOY_CONFIG_DIR}`);
+
+    if (!argv.apiToken) {
+        logger.error('Please, provide --api-token');
+        process.exit(1);
+    }
 
     const configPath = DEPLOY_CONFIG_DIR;
 
@@ -21,7 +24,11 @@ const createDeployConfig = async () => {
     logger.info(`  Wallet type: ${deployerWallet}`);
     logger.info(`  Mnemonic: ${deployerMnemonic}`);
 
-    const config = { deployerWallet, deployerMnemonic };
+    const config = {
+        deployerWallet,
+        deployerMnemonic,
+        apiToken: argv.apiToken
+    };
 
     await fs.writeJSON(configPath, config, { spaces: 4 });
 

@@ -13,11 +13,14 @@ interface ILsbRelease {
 
 config({ path: path.resolve(appRoot.path, '.env') });
 
-const argv = yargs(process.argv)
+export const argv = yargs(process.argv)
 .options({
-    deployConfig: { type: 'string' }
+    deployConfig: { type: 'string' },
+    apiToken: { type: 'string' }
 })
 .parseSync();
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getDeployConfigPath = () => {
     const customPath = argv.deployConfig || process.env.DEPLOY_CONFIG;
@@ -36,7 +39,13 @@ const getDeployConfigPath = () => {
 
 export const DEPLOY_CONFIG_DIR = getDeployConfigPath();
 
-export const loadDeployConfig = () => {
+interface IDeployConfig {
+    deployerWallet: string
+    deployerMnemonic: string
+    apiToken: string
+}
+
+export const loadDeployConfig = (): IDeployConfig => {
     return fs.readJSONSync(DEPLOY_CONFIG_DIR);
 }
 
