@@ -1,18 +1,14 @@
-import { logger } from "./util";
+import { FIFTLIB_PATH, FIFT_BIN, FUNC_BIN, logger } from "./util";
 import * as fs from 'fs-extra';
 import * as path from 'node:path';
 import child_process from 'node:child_process';
 import * as appRoot from 'app-root-path';
 import glob from 'fast-glob';
-import { config } from 'dotenv';
 import { Cell } from 'ton';
 
 const BUILD_FOLDER = path.resolve(appRoot.path, 'build');
 const ARTIFACTS_FOLDER = path.resolve(appRoot.path, 'build', 'artifacts');
 const CONTRACTS_PATH = path.resolve(appRoot.path, 'contracts', '*.fc');
-const ENV_PATH = path.resolve(appRoot.path, '.env');
-
-config({ path: ENV_PATH });
 
 const build = async () => {
     logger.info('* Build contracts');
@@ -36,7 +32,7 @@ const build = async () => {
         const cellArtifact = path.resolve(ARTIFACTS_FOLDER, `${contractName}.cell`);
         const hexArtifact = path.resolve(BUILD_FOLDER, `${contractName}.compiled.json`);
 
-        await child_process.execSync(`func -APS -o ${fifArtifact} ${contractPath} 2>&1 1>node_modules/.tmpfun`);
+        await child_process.execSync(`${FUNC_BIN} -APS -o ${fifArtifact} ${contractPath}`);
         logger.info(`  + new artifact ${fifArtifact}`);
 
         let fiftCellSource = [
@@ -50,7 +46,7 @@ const build = async () => {
 
         console.log(process.env.FIFTPATH)
 
-        await child_process.execSync(`fift -I ${process.env.FIFTPATH} ${fiftCellArtifact}`);
+        await child_process.execSync(`${FIFT_BIN} -I ${FIFTLIB_PATH} ${fiftCellArtifact}`);
 
         const hex = Cell.fromBoc(fs.readFileSync(cellArtifact))[0].toBoc().toString('hex');
         fs.writeJSONSync(hexArtifact, { hex });
