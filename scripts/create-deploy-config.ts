@@ -1,15 +1,14 @@
+#!/usr/bin/env ts-node
 import { mnemonicNew } from "ton-crypto";
-import { logger } from './util';
+import { DEPLOY_CONFIG_DIR, logger } from './util';
 import * as fs from 'fs-extra';
-import * as path from 'node:path';
-import * as appRoot from 'app-root-path';
 
 const CONFIG_FILENAME = 'deploy.config.json';
 
 const createDeployConfig = async () => {
     logger.info(`* Create ${CONFIG_FILENAME}`);
 
-    const configPath = path.resolve(appRoot.path, CONFIG_FILENAME);
+    const configPath = DEPLOY_CONFIG_DIR;
 
     if (await fs.existsSync(configPath)) {
         logger.error(`${configPath} exists!`)
